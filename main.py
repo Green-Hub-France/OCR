@@ -1,17 +1,21 @@
-from src.ui import app
-from src.observability import configure_logging
+import os
+import logging
 from src.health import start_health_server
+from src.ui import app
 
-import os, logging
 logger = logging.getLogger(__name__)
 
-for root, dirs, files in os.walk("/mount/src/ocr"):
-    logger.info(f"[FS] {root} → dirs={dirs} files={files}")
+def main():
+    disable = os.getenv("DISABLE_HEALTH", "").lower() in ("1","true","yes")
+    logger.info(f"[DEBUG] DISABLE_HEALTH = {disable}")
+    if not disable:
+        # Only launch if it’s not explicitly disabled
+        start_health_server(host="0.0.0.0", port=8001)
+    else:
+        logger.info("Health server disabled by DISABLE_HEALTH")
 
-if __name__ == '__main__':
-    # Configure structured JSON logging
-    configure_logging()
-    # Start health and metrics HTTP server on port 8001
-    start_health_server(host='0.0.0.0', port=8001)
-    # Launch Streamlit application
+    # 3. Lancement de l'UI Streamlit
     app()
+
+if __name__ == "__main__":
+    main()
