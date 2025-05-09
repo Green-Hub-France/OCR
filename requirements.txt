@@ -1,0 +1,12 @@
+streamlit
+boto3
+python-dotenv
+pytesseract
+opencv-python-headless
+pillow
+pandas
+numpy
+PyMuPDF
+spacy
+flashtext
+pytest

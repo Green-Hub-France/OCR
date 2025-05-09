@@ -1,0 +1,110 @@
+# k8s-manifests.yaml
+# -----------------
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ocr-greenhub-config
+data:
+  # Streamlit configuration
+  STREAMLIT_PAGE_TITLE: "OCR - Green Hub"
+  STREAMLIT_LAYOUT: "wide"
+  # AWS region & optional Secrets Manager secret name
+  AWS_REGION: "eu-west-3"
+  AWS_SECRETS_NAME: ""  # Remplir si utilisation de Secrets Manager
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ocr-greenhub-secret
+type: Opaque
+stringData:
+  # Définir uniquement si vous ne passez pas par IAM Roles
+  AWS_ACCESS_KEY_ID: "<YOUR_AWS_ACCESS_KEY_ID>"
+  AWS_SECRET_ACCESS_KEY: "<YOUR_AWS_SECRET_ACCESS_KEY>"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ocr-greenhub
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ocr-greenhub
+  template:
+    metadata:
+      labels:
+        app: ocr-greenhub
+    spec:
+      containers:
+      - name: ocr-greenhub
+        image: <YOUR_REGISTRY>/ocr-greenhub:latest  # Mettre à jour avec votre image
+        ports:
+        - containerPort: 8501  # Streamlit app
+        - containerPort: 8001  # Health/Metrics endpoint
+        env:
+        - name: STREAMLIT_PAGE_TITLE
+          valueFrom:
+            configMapKeyRef:
+              name: ocr-greenhub-config
+              key: STREAMLIT_PAGE_TITLE
+        - name: STREAMLIT_LAYOUT
+          valueFrom:
+            configMapKeyRef:
+              name: ocr-greenhub-config
+              key: STREAMLIT_LAYOUT
+        - name: AWS_REGION
+          valueFrom:
+            configMapKeyRef:
+              name: ocr-greenhub-config
+              key: AWS_REGION
+        - name: AWS_SECRETS_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: ocr-greenhub-config
+              key: AWS_SECRETS_NAME
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: ocr-greenhub-secret
+              key: AWS_ACCESS_KEY_ID
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: ocr-greenhub-secret
+              key: AWS_SECRET_ACCESS_KEY
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 8001
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8001
+          initialDelaySeconds: 30
+          periodSeconds: 20
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ocr-greenhub
+spec:
+  type: ClusterIP
+  selector:
+    app: ocr-greenhub
+  ports:
+  - name: http
+    protocol: TCP
+    port: 8501
+    targetPort: 8501
+  - name: metrics
+    protocol: TCP
+    port: 8001
+    targetPort: 8001
