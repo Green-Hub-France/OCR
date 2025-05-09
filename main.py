@@ -4,7 +4,9 @@ from src.health import start_health_server
 
 import os, logging
 logger = logging.getLogger(__name__)
-logger.info(f"[DEBUG] DISABLE_HEALTH = {os.getenv('DISABLE_HEALTH')}")
+
+for root, dirs, files in os.walk("/mount/src/ocr"):
+    logger.info(f"[FS] {root} → dirs={dirs} files={files}")
 
 if __name__ == '__main__':
     # Configure structured JSON logging
