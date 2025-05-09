@@ -2,6 +2,10 @@ from src.ui import app
 from src.observability import configure_logging
 from src.health import start_health_server
 
+import os, logging
+logger = logging.getLogger(__name__)
+logger.info(f"[DEBUG] DISABLE_HEALTH = {os.getenv('DISABLE_HEALTH')}")
+
 if __name__ == '__main__':
     # Configure structured JSON logging
     configure_logging()
