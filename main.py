@@ -10,7 +10,7 @@ def main():
     logger.info(f"[DEBUG] DISABLE_HEALTH = {disable}")
     if not disable:
         # Only launch if it’s not explicitly disabled
-        start_health_server(host="0.0.0.0", port=8001)
+        start_health_server(host="0.0.0.0", port=8002)
     else:
         logger.info("Health server disabled by DISABLE_HEALTH")
 
