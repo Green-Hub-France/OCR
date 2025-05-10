@@ -16,7 +16,7 @@ developmentMode = false
 
 [server]
 # Port sur lequel servira l'app
-port = 3000
+port = 8501
 
 # Protection contre les attaques CSRF
 enableXsrfProtection = true
