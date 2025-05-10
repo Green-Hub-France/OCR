@@ -10,6 +10,14 @@ import json
 from typing import Optional, Dict
 from dotenv import load_dotenv
 
+import hashlib
+
+# Dictionnaire des utilisateurs et de leurs mots de passe hachés
+USERS = {
+    "alice": hashlib.sha256("secret1".encode()).hexdigest(),
+    "bob":   hashlib.sha256("motdepasse2".encode()).hexdigest(),
+}
+
 # Load environment variables from .env file if present
 load_dotenv()
 

@@ -1,3 +1,5 @@
+# .streamlit/config.toml
+
 [theme]
 primaryColor = "#28a745"
 backgroundColor = "#ffffff"
@@ -9,8 +11,16 @@ font = "sans serif"
 magicEnabled = false
 
 [global]
+# Désactive le mode développement pour autoriser le changement de port
+developmentMode = false
+
+[server]
+# Port sur lequel servira l'app
+port = 3000
+
+# Protection contre les attaques CSRF
 enableXsrfProtection = true
 
-# Accessibility enhancements
-[tooltips]
-enabled = true
+# CORS activé si vous avez besoin d’appels cross-origin ;
+# sinon laissez commenté (valeur par défaut = false).
+# enableCORS = true

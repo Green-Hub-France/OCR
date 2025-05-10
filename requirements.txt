@@ -14,3 +14,4 @@ prometheus_client>=0.16.0
 fastapi
 uvicorn
 slack_sdk
+pydantic

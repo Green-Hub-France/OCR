@@ -9,7 +9,6 @@ import streamlit as st
 import streamlit.components.v1 as components  # nécessaire pour components.html
 from PIL import Image
 import pandas as pd
-
 from .config import STREAMLIT_PAGE_TITLE, STREAMLIT_LAYOUT
 from .i18n import t
 from .preprocessing import preprocess
@@ -18,6 +17,7 @@ from .textract_service import textract_parse
 from .observability import record_request
 from .alerting import send_alert
 from .history import record_entry, update_entry, get_history
+from .auth import check_credentials
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +38,35 @@ def load_pdf_page(file_bytes: bytes, page_number: int = 0) -> Image.Image:
 def app():
     # Configuration de la page
     st.set_page_config(page_title=STREAMLIT_PAGE_TITLE, layout=STREAMLIT_LAYOUT)
+
+        # --- AUTHENTIFICATION ---
+    if "logged_in" not in st.session_state:
+        st.session_state["logged_in"] = False
+
+    if not st.session_state["logged_in"]:
+        st.title("🔒 Connexion")
+        username = st.text_input("Utilisateur")
+        password = st.text_input("Mot de passe", type="password")
+        if st.button("Se connecter"):
+            if check_credentials(username, password):
+                st.session_state["username"] = username
+                st.session_state["logged_in"] = True
+                # Relance l'application pour refléter l'état connecté
+                try:
+                    st.experimental_rerun()
+                except AttributeError:
+                    st.success("Connexion réussie ! Veuillez rafraîchir la page manuellement.")
+                    st.stop()
+            else:
+                st.error("Utilisateur ou mot de passe incorrect")
+        return
+
+    # Après connexion
+    st.sidebar.success(f"Connecté en tant que {st.session_state['username']}")
+    if st.sidebar.button("Déconnexion"):
+        for key in ["logged_in", "username"]:
+            st.session_state.pop(key, None)
+        st.experimental_rerun()
 
     # CSS pour boutons verts
     st.markdown("""
